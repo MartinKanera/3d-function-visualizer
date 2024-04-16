@@ -12,22 +12,19 @@ const camera = new THREE.PerspectiveCamera(
   1000,
 );
 
-camera.position.x = 10;
-camera.position.y = 10;
-camera.position.z = -8;
+camera.position.x = 15;
+camera.position.y = 15;
+camera.position.z = -15;
 camera.lookAt(0, 0, 0);
 
-const topLight = new THREE.DirectionalLight(0xffffff, 1);
-const bottomLight = new THREE.DirectionalLight(0xffffff, 1);
-topLight.position.set(10, 10, 10);
-bottomLight.position.set(-10, -10, -10);
-scene.add(topLight, bottomLight);
+const size = 10;
 
-const gridBox = new GridBox(10, 20);
+const gridBox = new GridBox(size, 20);
 scene.add(gridBox.getGridBox());
 
 // Initialize renderer, set size, and append to DOM
 const renderer = new THREE.WebGLRenderer();
+renderer.localClippingEnabled = true;
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
@@ -41,14 +38,11 @@ controls.maxDistance = 100;
 
 controls.maxPolarAngle = Math.PI / 2;
 
-const fn = (x: number, y: number) => Math.sin(x) * Math.cos(y);
+const fn = (x: number, y: number) => x ** 2 + y ** 2 - 10;
 
-const visualizer = functionVisualizer(-5, 5, 0.1, fn);
+const visualizer = functionVisualizer(-size / 2, size / 2, 0.1, fn);
 
-scene.add(visualizer);
-
-renderer.getContext().getExtension("OES_standard_derivatives");
-renderer.capabilities.precision = "highp"; // or 'mediump' / 'lowp'
+scene.add(await visualizer);
 
 // Animation loop
 function animate() {

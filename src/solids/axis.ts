@@ -9,9 +9,11 @@ export function axis(length: number, direction: AxisDirection, color: number) {
   // @ts-ignore
   const font = new Font(fontJson);
 
+  const size = length / 2 / 10;
+
   const textGeometry = new TextGeometry(direction, {
     font,
-    size: 0.3,
+    size,
     depth: 0.1,
     height: 0.1,
   });
