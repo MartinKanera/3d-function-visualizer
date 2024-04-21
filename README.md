@@ -14,3 +14,5 @@ npm install
 # Start application at localhost:5173
 npm run dev
 ```
+
+## [Live Version](https://martinkanera.github.io/3d-function-visualizer/)
