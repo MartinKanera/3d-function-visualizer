@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import "./style.css";
-import GridBox from "./solids/grid-box";
+import { generateGrid } from "./solids/grid";
+import GridBox, { type GridBoxOptions } from "./solids/grid-box";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { functionVisualizer } from "./solids/function";
 
@@ -17,9 +18,18 @@ camera.position.y = 15;
 camera.position.z = -15;
 camera.lookAt(0, 0, 0);
 
-const size = 10;
+const defaultGridBoxSize: GridBoxOptions = {
+  minX: -5,
+  maxX: 5,
+  minY: -5,
+  maxY: 15,
+  minZ: -5,
+  maxZ: 5,
+};
 
-const gridBox = new GridBox(size, 20);
+const segments = 20;
+const gridBox = new GridBox(defaultGridBoxSize, segments);
+
 scene.add(gridBox.getGridBox());
 
 // Initialize renderer, set size, and append to DOM
@@ -38,9 +48,19 @@ controls.maxDistance = 100;
 
 controls.maxPolarAngle = Math.PI / 2;
 
-const fn = (x: number, y: number) => x ** 2 + y ** 2 - 10;
+const { vertices, indices, maxMeasuredY } = generateGrid(
+  defaultGridBoxSize,
+  segments,
+  (x: number, y: number) => x ** 2 + y ** 2 - 10,
+);
 
-const visualizer = functionVisualizer(-size / 2, size / 2, 0.1, fn);
+const visualizer = functionVisualizer(
+  vertices,
+  indices,
+  maxMeasuredY,
+  defaultGridBoxSize.minY,
+  defaultGridBoxSize.maxY,
+);
 
 scene.add(await visualizer);
 
