@@ -19,12 +19,12 @@ camera.position.z = -15;
 camera.lookAt(0, 0, 0);
 
 const defaultGridBoxSize: GridBoxOptions = {
-  minX: -5,
+  minX: -15,
   maxX: 5,
-  minY: -5,
-  maxY: 15,
-  minZ: -5,
-  maxZ: 5,
+  minY: -9,
+  maxY: 10,
+  minZ: -9,
+  maxZ: 7,
 };
 
 const segments = 20;
@@ -54,7 +54,7 @@ const { vertices, indices, maxMeasuredY } = generateGrid(
   (x: number, y: number) => x ** 2 + y ** 2 - 10,
 );
 
-const visualizer = functionVisualizer(
+const visualizer = await functionVisualizer(
   vertices,
   indices,
   maxMeasuredY,
@@ -62,7 +62,7 @@ const visualizer = functionVisualizer(
   defaultGridBoxSize.maxY,
 );
 
-scene.add(await visualizer);
+scene.add(visualizer);
 
 // Event listener for window resizing
 window.addEventListener("resize", () => {

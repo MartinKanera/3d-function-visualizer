@@ -1,6 +1,7 @@
 import type { GridBoxOptions } from "./grid-box";
+import * as THREE from "three";
 
-export const generateFlatWireframeGrid = (
+const generateFlatWireframeGrid = (
   { minX, maxX, minZ, maxZ }: Omit<GridBoxOptions, "minY" | "maxY">,
   segments: number,
 ) => {
@@ -26,6 +27,24 @@ export const generateFlatWireframeGrid = (
   }
 
   return { vertices, indices };
+};
+
+export const getFlatGridObject = (
+  dimensions: Omit<GridBoxOptions, "minY" | "maxY">,
+  segments: number,
+  color: number,
+) => {
+  const { vertices, indices } = generateFlatWireframeGrid(dimensions, segments);
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute(
+    "position",
+    new THREE.Float32BufferAttribute(vertices, 3),
+  );
+  geometry.setIndex(indices);
+
+  const material = new THREE.LineBasicMaterial({ color: color });
+  return new THREE.LineSegments(geometry, material);
 };
 
 export const generateGrid = (
@@ -61,8 +80,5 @@ export const generateGrid = (
       indices.push(b, b + 1, a + 1);
     }
   }
-
-  console.log(vertices, indices);
-
   return { vertices, indices, maxMeasuredY };
 };

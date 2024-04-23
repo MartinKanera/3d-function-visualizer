@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { axis } from "./axis";
-import { generateFlatWireframeGrid } from "./grid";
+import { getFlatGridObject } from "./grid";
+import { generateWireframeBox } from "./box";
 import AxisDirection from "../model/axis-direction";
 
 export type GridBoxOptions = {
@@ -13,6 +14,7 @@ export type GridBoxOptions = {
 };
 
 const PRIMARY_BOX_COLOR = 0xffffff;
+const SECONDARY_BOX_COLOR = 0x757575;
 
 const getGridObject = (vertices: number[], indices: number[]) => {
   const geometry = new THREE.BufferGeometry();
@@ -34,7 +36,7 @@ export default class GridBox {
   // @ts-expect-error
   private axis: [THREE.Group, THREE.Group, THREE.Group];
   // @ts-expect-error
-  private box: THREE.Box3Helper;
+  private box: THREE.LineSegments;
 
   constructor(dimensions: GridBoxOptions, segments: number) {
     this.dimensions = dimensions;
@@ -53,27 +55,25 @@ export default class GridBox {
   }
 
   private update() {
-    const { vertices: wfVertices, indices: wfIndices } =
-      generateFlatWireframeGrid(this.dimensions, this.segments);
-
-    this.grid = getGridObject(wfVertices, wfIndices);
+    this.grid = getFlatGridObject(
+      this.dimensions,
+      this.segments,
+      SECONDARY_BOX_COLOR,
+    );
 
     const { minX, maxX, minY, maxY, minZ, maxZ } = this.dimensions;
-
-    console.log();
 
     this.axis = [
       axis({ min: minX, max: maxX }, AxisDirection.X, PRIMARY_BOX_COLOR),
       axis({ min: minY, max: maxY }, AxisDirection.Y, PRIMARY_BOX_COLOR),
       axis({ min: minZ, max: maxZ }, AxisDirection.Z, PRIMARY_BOX_COLOR),
     ];
-    // TODO box
+    this.box = generateWireframeBox(this.dimensions, PRIMARY_BOX_COLOR);
   }
 
   public getGridBox() {
     const group = new THREE.Group();
-    // group.add(this.grid, this.box, ...this.axis);
-    group.add(this.grid, ...this.axis);
+    group.add(this.grid, this.box, ...this.axis);
     return group;
   }
 }
