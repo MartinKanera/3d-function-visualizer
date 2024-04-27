@@ -25,3 +25,66 @@ html {
   padding: 0;
   overflow: hidden;
 }
+
+.controls {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+  padding: 10px;
+  background: #242424;
+  border-radius: 8px;
+  gap: 10px;
+}
+
+.axis-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.axis-group {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.axis-group div {
+  flex: 1;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+input[type="number"] {
+  width: 100%;
+}
+
+button {
+  margin-top: 5px;
+  width: fit-content;
+  padding: 5px 10px;
+  width: 100%;
+  cursor: pointer;
+}
+
+#snackbar {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px;
+  background: #333;
+  color: white;
+  border-radius: 8px;
+  display: none;
+}
+
+#snackbar.show {
+  display: block;
+}

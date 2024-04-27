@@ -16,21 +16,10 @@ export type GridBoxOptions = {
 const PRIMARY_BOX_COLOR = 0xffffff;
 const SECONDARY_BOX_COLOR = 0x757575;
 
-const getGridObject = (vertices: number[], indices: number[]) => {
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute(
-    "position",
-    new THREE.Float32BufferAttribute(vertices, 3),
-  );
-  geometry.setIndex(indices);
-
-  const material = new THREE.LineBasicMaterial({ color: 0x757575 });
-  return new THREE.LineSegments(geometry, material);
-};
-
 export default class GridBox {
   private dimensions: GridBoxOptions;
-  private segments: number;
+  private segmentsX: number;
+  private segmentsZ: number;
   // @ts-expect-error
   private grid: THREE.LineSegments;
   // @ts-expect-error
@@ -38,9 +27,14 @@ export default class GridBox {
   // @ts-expect-error
   private box: THREE.LineSegments;
 
-  constructor(dimensions: GridBoxOptions, segments: number) {
+  constructor(
+    dimensions: GridBoxOptions,
+    segmentsX: number,
+    segmentsZ: number,
+  ) {
     this.dimensions = dimensions;
-    this.segments = segments;
+    this.segmentsX = segmentsX;
+    this.segmentsZ = segmentsZ;
     this.update();
   }
 
@@ -49,15 +43,23 @@ export default class GridBox {
     this.update();
   }
 
-  public setDivisions(segments: number) {
-    this.segments = segments;
-    return this;
+  public setSegments({
+    segmentsX,
+    segmentsZ,
+  }: {
+    segmentsX: number;
+    segmentsZ: number;
+  }) {
+    this.segmentsX = segmentsX;
+    this.segmentsZ = segmentsZ;
+    this.update();
   }
 
   private update() {
     this.grid = getFlatGridObject(
       this.dimensions,
-      this.segments,
+      this.segmentsX,
+      this.segmentsZ,
       SECONDARY_BOX_COLOR,
     );
 

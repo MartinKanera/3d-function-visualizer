@@ -19,7 +19,8 @@ export function axis(
   // @ts-ignore
   const font = new Font(fontJson);
 
-  const size = 0.5;
+  // calculate the size of the text based on the axis length
+  const size = (max - min) / 20;
 
   const textGeometry = new TextGeometry(DIRECTION_LABEL[direction], {
     font,

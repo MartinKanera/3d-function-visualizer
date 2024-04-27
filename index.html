@@ -8,5 +8,53 @@
   </head>
   <body>
     <script type="module" src="/src/main.ts"></script>
+    <div class="controls">
+      <label for="functionInput">Function:</label>
+        <input type="text" id="function" placeholder="Math.sin(x) * Math.sin(z)">
+
+        <div class="axis-inputs">
+            <div class="axis-group">
+                <div>
+                  <label for="minX">Min X:</label>
+                  <input type="number" id="minX">
+                </div>
+                <div>
+                  <label for="maxX">Max X:</label>
+                  <input type="number" id="maxX">
+                </div>
+            </div>
+
+            <div class="axis-group">
+                <div>
+                  <label for="minY">Min Y:</label>
+                  <input type="number" id="minY">
+                </div>
+                <div>
+                  <label for="maxY">Max Y:</label>
+                  <input type="number" id="maxY">
+                </div>
+            </div>
+
+            <div class="axis-group">
+                <div>
+                  <label for="minZ">Min Z:</label>
+                  <input type="number" id="minZ">
+                </div>
+                <div>
+                  <label for="maxZ">Max Z:</label>
+                  <input type="number" id="maxZ">
+                </div>
+            </div>
+        </div>
+
+        <label for="segments">Segments X:</label>
+        <input type="number" id="segmentsX" min="1">
+
+        <label for="segments">Segments Y:</label>
+        <input type="number" id="segmentsZ" min="1">
+
+        <button id="run">Visualize Function</button>
+    </div>
+    <div id="snackbar"></div>
   </body>
 </html>

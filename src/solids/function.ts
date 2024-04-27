@@ -4,7 +4,12 @@ import loadShader from "../utils/load-shader";
 const COLOR_A = 0x15f5ba; // Extremes
 const COLOR_B = 0x836fff; // Midpoint
 
-export const functionVisualizer = async (
+const yCoordinatePassShader = await loadShader(
+  "shaders/y_coordinate_pass.vert",
+);
+const colorBlendShader = await loadShader("shaders/color_blend.frag");
+
+export const functionVisualizer = (
   vertices: number[],
   indices: number[],
   maxMeasuredY: number,
@@ -17,8 +22,8 @@ export const functionVisualizer = async (
   geometry.setIndex(indices);
 
   const material = new THREE.ShaderMaterial({
-    vertexShader: await loadShader("shaders/y_coordinate_pass.vert"),
-    fragmentShader: await loadShader("shaders/color_blend.frag"),
+    vertexShader: yCoordinatePassShader,
+    fragmentShader: colorBlendShader,
     uniforms: {
       maxY: { value: maxMeasuredY },
       colorA: { value: new THREE.Color(COLOR_A) },
