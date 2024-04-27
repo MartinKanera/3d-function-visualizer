@@ -1,13 +1,212 @@
 import * as THREE from "three";
 import "./style.css";
 import { generateGrid } from "./solids/grid";
-import GridBox, { type GridBoxOptions } from "./solids/grid-box";
+import GridBox from "./solids/grid-box";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { functionVisualizer } from "./solids/function";
-import { init as initForm, type FunctionValues } from "./utils/form";
+import {
+  type FunctionValues,
+  DEFAULT_VALUES,
+  init as initForm,
+  enableForm,
+  disableForm,
+} from "./utils/form";
 import { evaluate } from "mathjs";
 
-function updateScene({
+const ANIMATION_DURATION = 3000;
+
+let oldFunctionVertices: number[] = [];
+let visualizedFunction: THREE.Object3D;
+let controls: OrbitControls;
+let gridBox: GridBox;
+let scene: THREE.Scene;
+let camera: THREE.PerspectiveCamera;
+let renderer: THREE.WebGLRenderer;
+
+function init() {
+  // Initialize scene
+  scene = new THREE.Scene();
+
+  // Initialize renderer, set size, and append to DOM
+  renderer = new THREE.WebGLRenderer();
+  renderer.localClippingEnabled = true;
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  // Initialize camera
+  camera = new THREE.PerspectiveCamera(
+    75,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    1000,
+  );
+
+  camera.position.x = 3;
+  camera.position.y = 2.75;
+  camera.position.z = 2.75;
+  camera.lookAt(0, 0, 0);
+
+  // Initialize controls
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.screenSpacePanning = false;
+  controls.enablePan = false;
+  controls.minDistance = 2;
+  controls.maxDistance = 300;
+  controls.maxPolarAngle = Math.PI / 2;
+
+  const { vertices, indices, maxMeasuredY } = generateGrid(
+    DEFAULT_VALUES,
+    DEFAULT_VALUES.segmentsX,
+    DEFAULT_VALUES.segmentsZ,
+    (x: number, y: number) => evaluate(DEFAULT_VALUES.fn, { x, y }),
+  );
+
+  oldFunctionVertices = vertices;
+
+  visualizedFunction = functionVisualizer(
+    vertices,
+    indices,
+    maxMeasuredY,
+    DEFAULT_VALUES.minY,
+    DEFAULT_VALUES.maxY,
+  );
+
+  scene.add(visualizedFunction);
+
+  gridBox = new GridBox(
+    DEFAULT_VALUES,
+    DEFAULT_VALUES.segmentsX,
+    DEFAULT_VALUES.segmentsZ,
+  );
+
+  scene.add(gridBox.getGridBox());
+
+  // Initialize animation loop
+  animate();
+
+  // Initialize form
+  initForm((...args) => {
+    const [visualizedFunction, gridBox] = newSceneState(...args);
+
+    clearScene();
+    scene.add(visualizedFunction);
+    scene.add(gridBox);
+  }, startAnimationVisualization);
+}
+
+function clearScene() {
+  const n = scene.children.length - 1;
+  for (let i = n; i > -1; i--) {
+    scene.remove(scene.children[i]);
+  }
+}
+
+function startAnimationVisualization({
+  fn,
+  minX,
+  maxX,
+  minY,
+  maxY,
+  minZ,
+  maxZ,
+  segmentsX,
+  segmentsZ,
+}: FunctionValues) {
+  // Animation has started, disable the form
+  disableForm();
+
+  const { vertices, indices, maxMeasuredY } = generateGrid(
+    {
+      minX,
+      maxX,
+      minY,
+      maxY,
+      minZ,
+      maxZ,
+    },
+    segmentsX,
+    segmentsZ,
+    (x, y) => evaluate(fn, { x, y }),
+  );
+
+  clearScene();
+  scene.add(gridBox.getGridBox());
+  const start = performance.now();
+
+  animationTick(start, vertices, indices, maxMeasuredY, minY, maxY);
+}
+
+function animationTick(
+  start: number,
+  newVertices: number[],
+  newIndices: number[],
+  newMaxMeasuredY: number,
+  minY: number,
+  maxY: number,
+) {
+  // interpolate between old and new vertices Y coordinate
+  const now = performance.now();
+  let lastTick = false;
+  let vertices: number[] = [];
+
+  if (now >= start + ANIMATION_DURATION) {
+    // Stop the animation and set the new vertices
+    oldFunctionVertices = newVertices;
+    // Animation has ended, enable the form
+    lastTick = true;
+    vertices = newVertices;
+    console.log("Animation ended");
+    enableForm();
+  }
+
+  const progress = (now - start) / ANIMATION_DURATION;
+  const progressEased = Math.sin((progress * Math.PI) / 2);
+
+  let maxMeasuredY = lastTick ? newMaxMeasuredY : minY;
+
+  for (let i = 0; i < oldFunctionVertices.length && !lastTick; i += 3) {
+    let oldY = oldFunctionVertices[i + 1];
+    let newY = newVertices[i + 1];
+
+    if (oldY === -Infinity) oldY = minY;
+    else if (oldY === Infinity) oldY = maxY;
+    // if (!isFinite(oldY)) console.log(oldY);
+
+    if (newY === -Infinity) newY = minY;
+    else if (newY === Infinity) newY = maxY;
+
+    let y = oldY + (newY - oldY) * progressEased;
+
+    if (!isFinite(y)) y = NaN;
+
+    if (y > maxMeasuredY && isFinite(y)) {
+      maxMeasuredY = Math.min(y, maxY);
+    }
+
+    vertices.push(oldFunctionVertices[i], y, oldFunctionVertices[i + 2]);
+  }
+
+  const newVisualizedFunction = functionVisualizer(
+    vertices,
+    newIndices,
+    maxMeasuredY,
+    minY,
+    maxY,
+  );
+
+  scene.remove(visualizedFunction);
+  scene.add(newVisualizedFunction);
+
+  visualizedFunction = newVisualizedFunction;
+
+  if (lastTick) return;
+
+  requestAnimationFrame(() =>
+    animationTick(start, newVertices, newIndices, newMaxMeasuredY, minY, maxY),
+  );
+}
+
+function newSceneState({
   fn,
   minX,
   maxX,
@@ -32,11 +231,15 @@ function updateScene({
     (x, y) => evaluate(fn, { x, y }),
   );
 
-  scene.remove(visualizer);
-  visualizer = functionVisualizer(vertices, indices, maxMeasuredY, minY, maxY);
-  scene.add(visualizer);
+  oldFunctionVertices = vertices;
 
-  scene.remove(gridBox.getGridBox());
+  const newVisualizedFunction = functionVisualizer(
+    vertices,
+    indices,
+    maxMeasuredY,
+    minY,
+    maxY,
+  );
 
   gridBox.setDimensions({
     minX,
@@ -49,70 +252,11 @@ function updateScene({
 
   gridBox.setSegments({ segmentsX, segmentsZ });
 
-  scene.add(gridBox.getGridBox());
+  return [newVisualizedFunction, gridBox.getGridBox()];
 }
 
-initForm(updateScene);
-
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(
-  75,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  1000,
-);
-
-camera.position.x = 15;
-camera.position.y = 15;
-camera.position.z = -15;
-camera.lookAt(0, 0, 0);
-
-const defaultGridBoxSize: GridBoxOptions = {
-  minX: -25,
-  maxX: 25,
-  minY: -25,
-  maxY: 25,
-  minZ: -25,
-  maxZ: 25,
-};
-
-const segments = 100;
-const gridBox = new GridBox(defaultGridBoxSize, segments, segments);
-
-scene.add(gridBox.getGridBox());
-
-// Initialize renderer, set size, and append to DOM
-const renderer = new THREE.WebGLRenderer();
-renderer.localClippingEnabled = true;
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-
-controls.screenSpacePanning = false;
-controls.enablePan = false;
-// controls.autoRotate = true;
-controls.minDistance = 10;
-controls.maxDistance = 300;
-
-controls.maxPolarAngle = Math.PI / 2;
-
-const { vertices, indices, maxMeasuredY } = generateGrid(
-  defaultGridBoxSize,
-  segments,
-  segments,
-  (x: number, y: number) => x ** 2 + y ** 2 - 10,
-);
-
-let visualizer = functionVisualizer(
-  vertices,
-  indices,
-  maxMeasuredY,
-  defaultGridBoxSize.minY,
-  defaultGridBoxSize.maxY,
-);
-
-scene.add(visualizer);
+// Initialize the scene and render
+init();
 
 // Event listener for window resizing
 window.addEventListener("resize", () => {
@@ -124,8 +268,5 @@ window.addEventListener("resize", () => {
 // Animation loop
 function animate() {
   requestAnimationFrame(animate);
-  // controls.update();
   renderer.render(scene, camera);
 }
-
-animate();

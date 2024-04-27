@@ -78,9 +78,15 @@ export const generateGrid = (
       let z = minZ + j * stepZ;
       let y = fn(x, z);
 
-      if (y > maxMeasuredY) {
+      // Handle in shaders
+      if (y === -Infinity) y = minY;
+      else if (y === Infinity) y = maxY;
+      else if (isNaN(y)) y = 0;
+
+      if (y > maxMeasuredY && isFinite(y)) {
         maxMeasuredY = Math.min(y, maxY);
       }
+
       vertices.push(x, y, z);
     }
   }

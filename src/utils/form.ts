@@ -7,7 +7,7 @@ const MIN_Z_INPUT = document.querySelector<HTMLInputElement>("#minZ");
 const MAX_Z_INPUT = document.querySelector<HTMLInputElement>("#maxZ");
 const SEGMENTS_X_INPUT = document.querySelector<HTMLInputElement>("#segmentsX");
 const SEGMENTS_Z_INPUT = document.querySelector<HTMLInputElement>("#segmentsZ");
-const RUN_BUTTON = document.querySelector("#run");
+const RUN_BUTTON = document.querySelector<HTMLButtonElement>("#run");
 
 const SNACKBAR = document.querySelector("#snackbar");
 
@@ -136,10 +136,10 @@ const getParsedValues = (): FunctionValues => {
     fn: FUNCTION_INPUT!.value,
     minX: parseFloat(MIN_X_INPUT!.value),
     maxX: parseFloat(MAX_X_INPUT!.value),
-    minY: parseFloat(MIN_Y_INPUT!.value),
-    maxY: parseFloat(MAX_Y_INPUT!.value),
-    minZ: parseFloat(MIN_Z_INPUT!.value),
-    maxZ: parseFloat(MAX_Z_INPUT!.value),
+    minY: parseFloat(MIN_Z_INPUT!.value),
+    maxY: parseFloat(MAX_Z_INPUT!.value),
+    minZ: parseFloat(MIN_Y_INPUT!.value),
+    maxZ: parseFloat(MAX_Y_INPUT!.value),
     segmentsX: parseInt(SEGMENTS_X_INPUT!.value),
     segmentsZ: parseInt(SEGMENTS_Z_INPUT!.value),
   };
@@ -158,18 +158,21 @@ export type FunctionValues = {
 };
 
 export const DEFAULT_VALUES = {
-  fn: "x ^ 2 + y ^ 2 - 10",
-  minX: -30,
-  maxX: 30,
-  minY: -30,
-  maxY: 30,
-  minZ: -30,
-  maxZ: 30,
-  segmentsX: 99,
-  segmentsZ: 99,
+  fn: "(0.4^2-(0.6-(x^2+y^2)^0.5)^2)^0.5",
+  minX: -2.5,
+  maxX: 2.5,
+  minY: -2.5,
+  maxY: 2.5,
+  minZ: -2.5,
+  maxZ: 2.5,
+  segmentsX: 150,
+  segmentsZ: 150,
 };
 
-export const init = (reactToChange: (args: FunctionValues) => void) => {
+export const init = (
+  reactToChange: (args: FunctionValues) => void,
+  functionAnimation: (args: FunctionValues) => void,
+) => {
   const { fn, minX, maxX, minY, maxY, minZ, maxZ, segmentsX, segmentsZ } =
     DEFAULT_VALUES;
 
@@ -177,22 +180,21 @@ export const init = (reactToChange: (args: FunctionValues) => void) => {
   FUNCTION_INPUT!.value = fn;
   MIN_X_INPUT!.value = minX.toString();
   MAX_X_INPUT!.value = maxX.toString();
-  MIN_Y_INPUT!.value = minY.toString();
-  MAX_Y_INPUT!.value = maxY.toString();
-  MIN_Z_INPUT!.value = minZ.toString();
-  MAX_Z_INPUT!.value = maxZ.toString();
+  MIN_Y_INPUT!.value = minZ.toString();
+  MAX_Y_INPUT!.value = maxZ.toString();
+  MIN_Z_INPUT!.value = minY.toString();
+  MAX_Z_INPUT!.value = maxY.toString();
   SEGMENTS_X_INPUT!.value = segmentsX.toString();
   SEGMENTS_Z_INPUT!.value = segmentsZ.toString();
 
   // Add event listener to the run button
   RUN_BUTTON!.addEventListener("click", () => {
     if (!validateAndNotify()) return;
-    reactToChange(getParsedValues());
+    functionAnimation(getParsedValues());
   });
 
   // Add event listener to the inputs
   const inputs = [
-    FUNCTION_INPUT!,
     MIN_X_INPUT!,
     MAX_X_INPUT!,
     MIN_Y_INPUT!,
@@ -210,3 +212,24 @@ export const init = (reactToChange: (args: FunctionValues) => void) => {
     });
   }
 };
+
+const setDisabled = (disabled: boolean) => {
+  [
+    FUNCTION_INPUT!,
+    MIN_X_INPUT!,
+    MAX_X_INPUT!,
+    MIN_Y_INPUT!,
+    MAX_Y_INPUT!,
+    MIN_Z_INPUT!,
+    MAX_Z_INPUT!,
+    SEGMENTS_X_INPUT!,
+    SEGMENTS_Z_INPUT!,
+    RUN_BUTTON!,
+  ].forEach((input) => {
+    input.disabled = disabled;
+  });
+};
+
+export const enableForm = () => setDisabled(false);
+
+export const disableForm = () => setDisabled(true);

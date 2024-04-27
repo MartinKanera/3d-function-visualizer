@@ -10,50 +10,50 @@
     <script type="module" src="/src/main.ts"></script>
     <div class="controls">
       <label for="functionInput">Function:</label>
-        <input type="text" id="function" placeholder="Math.sin(x) * Math.sin(z)">
+        <input type="text" id="function" placeholder="sin(x) * sin(y)">
 
         <div class="axis-inputs">
             <div class="axis-group">
                 <div>
                   <label for="minX">Min X:</label>
-                  <input type="number" id="minX">
+                  <input type="number" id="minX" max="0">
                 </div>
                 <div>
                   <label for="maxX">Max X:</label>
-                  <input type="number" id="maxX">
+                  <input type="number" id="maxX" min="1">
                 </div>
             </div>
 
             <div class="axis-group">
                 <div>
                   <label for="minY">Min Y:</label>
-                  <input type="number" id="minY">
+                  <input type="number" id="minY" max="0">
                 </div>
                 <div>
                   <label for="maxY">Max Y:</label>
-                  <input type="number" id="maxY">
+                  <input type="number" id="maxY" min="1">
                 </div>
             </div>
 
             <div class="axis-group">
                 <div>
                   <label for="minZ">Min Z:</label>
-                  <input type="number" id="minZ">
+                  <input type="number" id="minZ" max="0">
                 </div>
                 <div>
                   <label for="maxZ">Max Z:</label>
-                  <input type="number" id="maxZ">
+                  <input type="number" id="maxZ" min="1">
                 </div>
             </div>
         </div>
 
         <label for="segments">Segments X:</label>
-        <input type="number" id="segmentsX" min="1">
+        <input type="number" id="segmentsX" min="2">
 
         <label for="segments">Segments Y:</label>
-        <input type="number" id="segmentsZ" min="1">
+        <input type="number" id="segmentsZ" min="2">
 
-        <button id="run">Visualize Function</button>
+        <button id="run">Translate to new function</button>
     </div>
     <div id="snackbar"></div>
   </body>
