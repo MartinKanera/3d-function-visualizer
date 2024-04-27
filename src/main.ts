@@ -155,7 +155,6 @@ function animationTick(
     // Animation has ended, enable the form
     lastTick = true;
     vertices = newVertices;
-    console.log("Animation ended");
     enableForm();
   }
 
@@ -170,7 +169,6 @@ function animationTick(
 
     if (oldY === -Infinity) oldY = minY;
     else if (oldY === Infinity) oldY = maxY;
-    // if (!isFinite(oldY)) console.log(oldY);
 
     if (newY === -Infinity) newY = minY;
     else if (newY === Infinity) newY = maxY;
