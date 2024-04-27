@@ -175,8 +175,6 @@ function animationTick(
 
     let y = oldY + (newY - oldY) * progressEased;
 
-    if (!isFinite(y)) y = NaN;
-
     if (y > maxMeasuredY && isFinite(y)) {
       maxMeasuredY = Math.min(y, maxY);
     }
