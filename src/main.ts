@@ -90,8 +90,8 @@ function init() {
     const [visualizedFunction, gridBox] = newSceneState(...args);
 
     clearScene();
-    scene.add(visualizedFunction);
     scene.add(gridBox);
+    scene.add(visualizedFunction);
   }, startAnimationVisualization);
 }
 
@@ -230,7 +230,7 @@ function newSceneState({
   segmentsX,
   segmentsZ,
 }: FunctionValues) {
-  const { vertices, indices, maxMeasuredY } = generateGrid(
+  const { vertices, indices, minMeasuredY, maxMeasuredY } = generateGrid(
     {
       minX,
       maxX,
@@ -249,6 +249,7 @@ function newSceneState({
   const newVisualizedFunction = functionVisualizer(
     vertices,
     indices,
+    minMeasuredY,
     maxMeasuredY,
     minY,
     maxY,

@@ -1,3 +1,5 @@
+import { debounce } from "./debounce";
+
 const FUNCTION_INPUT = document.querySelector<HTMLInputElement>("#function");
 const MIN_X_INPUT = document.querySelector<HTMLInputElement>("#minX");
 const MAX_X_INPUT = document.querySelector<HTMLInputElement>("#maxX");
@@ -205,11 +207,13 @@ export const init = (
     SEGMENTS_Z_INPUT!,
   ];
 
+  const debouncedHandler = debounce(() => {
+    if (!validateAndNotify()) return;
+    reactToChange(getParsedValues());
+  }, 500);
+
   for (const input of inputs) {
-    input.addEventListener("input", () => {
-      if (!validateAndNotify()) return;
-      reactToChange(getParsedValues());
-    });
+    input.addEventListener("input", debouncedHandler);
   }
 };
 
