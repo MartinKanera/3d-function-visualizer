@@ -9,6 +9,12 @@ const MIN_Z_INPUT = document.querySelector<HTMLInputElement>("#minZ");
 const MAX_Z_INPUT = document.querySelector<HTMLInputElement>("#maxZ");
 const SEGMENTS_X_INPUT = document.querySelector<HTMLInputElement>("#segmentsX");
 const SEGMENTS_Z_INPUT = document.querySelector<HTMLInputElement>("#segmentsZ");
+const MAX_Y_COLOR_INPUT =
+  document.querySelector<HTMLInputElement>("#maxYColor");
+const MID_Y_COLOR_INPUT =
+  document.querySelector<HTMLInputElement>("#midYColor");
+const MIN_Y_COLOR_INPUT =
+  document.querySelector<HTMLInputElement>("#minYColor");
 const RUN_BUTTON = document.querySelector<HTMLButtonElement>("#run");
 
 const SNACKBAR = document.querySelector("#snackbar");
@@ -144,6 +150,9 @@ const getParsedValues = (): FunctionValues => {
     maxZ: parseFloat(MAX_Y_INPUT!.value),
     segmentsX: parseInt(SEGMENTS_X_INPUT!.value),
     segmentsZ: parseInt(SEGMENTS_Z_INPUT!.value),
+    colorMax: MAX_Y_COLOR_INPUT!.value,
+    colorZero: MID_Y_COLOR_INPUT!.value,
+    colorMin: MIN_Y_COLOR_INPUT!.value,
   };
 };
 
@@ -157,6 +166,9 @@ export type FunctionValues = {
   maxZ: number;
   segmentsX: number;
   segmentsZ: number;
+  colorMax: string;
+  colorZero: string;
+  colorMin: string;
 };
 
 export const DEFAULT_VALUES = {
@@ -169,14 +181,29 @@ export const DEFAULT_VALUES = {
   maxZ: 2.5,
   segmentsX: 150,
   segmentsZ: 150,
+  colorMax: "#ff99cc",
+  colorZero: "#ffff00",
+  colorMin: "#9966cc",
 };
 
 export const init = (
   reactToChange: (args: FunctionValues) => void,
   functionAnimation: (args: FunctionValues) => void,
 ) => {
-  const { fn, minX, maxX, minY, maxY, minZ, maxZ, segmentsX, segmentsZ } =
-    DEFAULT_VALUES;
+  const {
+    fn,
+    minX,
+    maxX,
+    minY,
+    maxY,
+    minZ,
+    maxZ,
+    segmentsX,
+    segmentsZ,
+    colorMax,
+    colorZero,
+    colorMin,
+  } = DEFAULT_VALUES;
 
   // Assign default values to the inputs
   FUNCTION_INPUT!.value = fn;
@@ -188,6 +215,9 @@ export const init = (
   MAX_Z_INPUT!.value = maxY.toString();
   SEGMENTS_X_INPUT!.value = segmentsX.toString();
   SEGMENTS_Z_INPUT!.value = segmentsZ.toString();
+  MAX_Y_COLOR_INPUT!.value = colorMax;
+  MID_Y_COLOR_INPUT!.value = colorZero;
+  MIN_Y_COLOR_INPUT!.value = colorMin;
 
   // Add event listener to the run button
   RUN_BUTTON!.addEventListener("click", () => {
@@ -205,6 +235,9 @@ export const init = (
     MAX_Z_INPUT!,
     SEGMENTS_X_INPUT!,
     SEGMENTS_Z_INPUT!,
+    MAX_Y_COLOR_INPUT!,
+    MID_Y_COLOR_INPUT!,
+    MIN_Y_COLOR_INPUT!,
   ];
 
   const debouncedHandler = debounce(() => {
@@ -228,6 +261,9 @@ const setDisabled = (disabled: boolean) => {
     MAX_Z_INPUT!,
     SEGMENTS_X_INPUT!,
     SEGMENTS_Z_INPUT!,
+    MAX_Y_COLOR_INPUT!,
+    MID_Y_COLOR_INPUT!,
+    MIN_Y_COLOR_INPUT!,
     RUN_BUTTON!,
   ].forEach((input) => {
     input.disabled = disabled;

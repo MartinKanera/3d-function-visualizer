@@ -70,6 +70,11 @@ function init() {
     maxMeasuredY,
     DEFAULT_VALUES.minY,
     DEFAULT_VALUES.maxY,
+    {
+      colorMin: DEFAULT_VALUES.colorMin,
+      colorZero: DEFAULT_VALUES.colorZero,
+      colorMax: DEFAULT_VALUES.colorMax,
+    },
   );
 
   scene.add(visualizedFunction);
@@ -112,6 +117,7 @@ function startAnimationVisualization({
   maxZ,
   segmentsX,
   segmentsZ,
+  ...colors
 }: FunctionValues) {
   // Animation has started, disable the form
   disableForm();
@@ -142,6 +148,7 @@ function startAnimationVisualization({
     maxMeasuredY,
     minY,
     maxY,
+    colors,
   );
 }
 
@@ -153,6 +160,7 @@ function animationTick(
   newMaxMeasuredY: number,
   minY: number,
   maxY: number,
+  colors: Pick<FunctionValues, "colorMin" | "colorZero" | "colorMax">,
 ) {
   // interpolate between old and new vertices Y coordinate
   const now = performance.now();
@@ -197,6 +205,7 @@ function animationTick(
     maxMeasuredY,
     minY,
     maxY,
+    colors,
   );
 
   scene.remove(visualizedFunction);
@@ -215,6 +224,7 @@ function animationTick(
       newMaxMeasuredY,
       minY,
       maxY,
+      colors,
     ),
   );
 }
@@ -229,6 +239,7 @@ function newSceneState({
   maxZ,
   segmentsX,
   segmentsZ,
+  ...colors
 }: FunctionValues) {
   const { vertices, indices, minMeasuredY, maxMeasuredY } = generateGrid(
     {
@@ -253,6 +264,7 @@ function newSceneState({
     maxMeasuredY,
     minY,
     maxY,
+    colors,
   );
 
   gridBox.setDimensions({

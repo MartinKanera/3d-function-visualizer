@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import type { FunctionValues } from "../utils/form";
 import loadShader from "../utils/load-shader";
 
 const COLOR_MAX = 0xff99cc; // Top
@@ -17,11 +18,14 @@ export const functionVisualizer = (
   maxMeasuredY: number,
   minY: number,
   maxY: number,
+  colors: Pick<FunctionValues, "colorMax" | "colorZero" | "colorMin">,
 ) => {
   const geometry = new THREE.BufferGeometry();
   const positionAttribute = new THREE.Float32BufferAttribute(vertices, 3);
   geometry.setAttribute("position", positionAttribute);
   geometry.setIndex(indices);
+
+  const { colorMax, colorZero, colorMin } = colors;
 
   const material = new THREE.ShaderMaterial({
     vertexShader: yCoordinatePassShader,
@@ -29,9 +33,9 @@ export const functionVisualizer = (
     uniforms: {
       minY: { value: minMeasuredY },
       maxY: { value: maxMeasuredY },
-      colorMaxY: { value: new THREE.Color(COLOR_MAX) },
-      colorZero: { value: new THREE.Color(COLOR_ZERO) },
-      colorMinY: { value: new THREE.Color(COLOR_MIN) },
+      colorMaxY: { value: new THREE.Color(colorMax) },
+      colorZero: { value: new THREE.Color(colorZero) },
+      colorMinY: { value: new THREE.Color(colorMin) },
     },
     clipping: true,
     clippingPlanes: [
