@@ -155,7 +155,6 @@ function animationTick(
     // Animation has ended, enable the form
     lastTick = true;
     vertices = newVertices;
-    console.log(vertices.filter((_) => isNaN(_)));
     enableForm();
   }
 
