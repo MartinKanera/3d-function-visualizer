@@ -2,10 +2,6 @@ import * as THREE from "three";
 import type { FunctionValues } from "../utils/form";
 import loadShader from "../utils/load-shader";
 
-const COLOR_MAX = 0xff99cc; // Top
-const COLOR_ZERO = 0xffff00; // Midpoint
-const COLOR_MIN = 0x9966cc; // Bottom
-
 const yCoordinatePassShader = await loadShader(
   "shaders/y_coordinate_pass.vert",
 );
