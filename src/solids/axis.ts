@@ -10,6 +10,8 @@ const DIRECTION_LABEL = {
   [AxisDirection.Z]: "Y",
 };
 
+const TEXT_OFFSET = 0.25;
+
 export function axis(
   { min, max }: { min: number; max: number },
   direction: AxisDirection,
@@ -52,7 +54,7 @@ export function axis(
 
   switch (direction) {
     case AxisDirection.X:
-      textMesh.position.x = max;
+      textMesh.position.x = max + TEXT_OFFSET;
       if (bboxMin && bboxMax) {
         textMesh.position.z = -0.5 * (bboxMax.z - bboxMin.z);
       }
@@ -60,15 +62,15 @@ export function axis(
     // Flip Y and Z axes
     case AxisDirection.Z:
       line.rotation.y = -Math.PI / 2;
-      textMesh.position.z = min;
-      textMesh.rotateY(Math.PI / 2);
+      textMesh.position.z = max + TEXT_OFFSET;
+      textMesh.rotateY(-Math.PI / 2);
       if (bboxMin && bboxMax) {
-        textMesh.position.x = -0.5 * (bboxMax.z - bboxMin.z);
+        textMesh.position.x = 0.5 * (bboxMax.z - bboxMin.z);
       }
       break;
     case AxisDirection.Y:
       line.rotateZ(Math.PI / 2);
-      textMesh.position.y = max;
+      textMesh.position.y = max + TEXT_OFFSET;
       if (bboxMin && bboxMax) {
         textMesh.position.z = -0.5 * (bboxMax.z - bboxMin.z);
         textMesh.position.x = -0.5 * (bboxMax.x - bboxMin.x);
