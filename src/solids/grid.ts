@@ -70,6 +70,7 @@ export const generateGrid = (
   const stepX = (maxX - minX) / segmentsX;
   const stepZ = (maxZ - minZ) / segmentsZ;
 
+  let minMeasuredY = maxY;
   let maxMeasuredY = minY;
 
   for (let i = 0; i <= segmentsX; i++) {
@@ -77,11 +78,14 @@ export const generateGrid = (
     for (let j = 0; j <= segmentsZ; j++) {
       let z = minZ + j * stepZ;
 
+      // In case of Infinity throws an error in console but doesn't crash the app
       let y = fn(x, z);
 
       if (isNaN(y)) y = 0.01;
 
-      if (y > maxMeasuredY && isFinite(y)) {
+      if (y < minMeasuredY && isFinite(y)) {
+        minMeasuredY = Math.max(y, minY);
+      } else if (y > maxMeasuredY && isFinite(y)) {
         maxMeasuredY = Math.min(y, maxY);
       }
 
@@ -99,5 +103,5 @@ export const generateGrid = (
     }
   }
 
-  return { vertices, indices, maxMeasuredY };
+  return { vertices, indices, minMeasuredY, maxMeasuredY };
 };

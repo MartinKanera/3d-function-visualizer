@@ -54,7 +54,7 @@ function init() {
   controls.maxDistance = 300;
   controls.maxPolarAngle = Math.PI / 2;
 
-  const { vertices, indices, maxMeasuredY } = generateGrid(
+  const { vertices, indices, minMeasuredY, maxMeasuredY } = generateGrid(
     DEFAULT_VALUES,
     DEFAULT_VALUES.segmentsX,
     DEFAULT_VALUES.segmentsZ,
@@ -66,6 +66,7 @@ function init() {
   visualizedFunction = functionVisualizer(
     vertices,
     indices,
+    minMeasuredY,
     maxMeasuredY,
     DEFAULT_VALUES.minY,
     DEFAULT_VALUES.maxY,
@@ -115,7 +116,7 @@ function startAnimationVisualization({
   // Animation has started, disable the form
   disableForm();
 
-  const { vertices, indices, maxMeasuredY } = generateGrid(
+  const { vertices, indices, minMeasuredY, maxMeasuredY } = generateGrid(
     {
       minX,
       maxX,
@@ -133,13 +134,22 @@ function startAnimationVisualization({
   scene.add(gridBox.getGridBox());
   const start = performance.now();
 
-  animationTick(start, vertices, indices, maxMeasuredY, minY, maxY);
+  animationTick(
+    start,
+    vertices,
+    indices,
+    minMeasuredY,
+    maxMeasuredY,
+    minY,
+    maxY,
+  );
 }
 
 function animationTick(
   start: number,
   newVertices: number[],
   newIndices: number[],
+  newMinMeasuredY: number,
   newMaxMeasuredY: number,
   minY: number,
   maxY: number,
@@ -161,6 +171,7 @@ function animationTick(
   const progress = (now - start) / ANIMATION_DURATION;
   const progressEased = Math.sin((progress * Math.PI) / 2);
 
+  let minMeasuredY = lastTick ? newMinMeasuredY : maxY;
   let maxMeasuredY = lastTick ? newMaxMeasuredY : minY;
 
   for (let i = 0; i < oldFunctionVertices.length && !lastTick; i += 3) {
@@ -170,7 +181,9 @@ function animationTick(
     let y = oldY + (newY - oldY) * progressEased;
     if (isNaN(y)) y = 0.01;
 
-    if (y > maxMeasuredY && isFinite(y)) {
+    if (y < minMeasuredY && isFinite(y)) {
+      minMeasuredY = Math.max(y, minY);
+    } else if (y > maxMeasuredY && isFinite(y)) {
       maxMeasuredY = Math.min(y, maxY);
     }
 
@@ -180,6 +193,7 @@ function animationTick(
   const newVisualizedFunction = functionVisualizer(
     vertices,
     newIndices,
+    minMeasuredY,
     maxMeasuredY,
     minY,
     maxY,
@@ -193,7 +207,15 @@ function animationTick(
   if (lastTick) return;
 
   requestAnimationFrame(() =>
-    animationTick(start, newVertices, newIndices, newMaxMeasuredY, minY, maxY),
+    animationTick(
+      start,
+      newVertices,
+      newIndices,
+      newMinMeasuredY,
+      newMaxMeasuredY,
+      minY,
+      maxY,
+    ),
   );
 }
 

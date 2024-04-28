@@ -1,8 +1,9 @@
 import * as THREE from "three";
 import loadShader from "../utils/load-shader";
 
-const COLOR_A = 0x15f5ba; // Extremes
-const COLOR_B = 0x836fff; // Midpoint
+const COLOR_MAX = 0xff0000; // Top
+const COLOR_ZERO = 0xffff00; // Midpoint
+const COLOR_MIN = 0x0000ff; // Bottom
 
 const yCoordinatePassShader = await loadShader(
   "shaders/y_coordinate_pass.vert",
@@ -12,6 +13,7 @@ const colorBlendShader = await loadShader("shaders/color_blend.frag");
 export const functionVisualizer = (
   vertices: number[],
   indices: number[],
+  minMeasuredY: number,
   maxMeasuredY: number,
   minY: number,
   maxY: number,
@@ -25,9 +27,11 @@ export const functionVisualizer = (
     vertexShader: yCoordinatePassShader,
     fragmentShader: colorBlendShader,
     uniforms: {
+      minY: { value: minMeasuredY },
       maxY: { value: maxMeasuredY },
-      colorA: { value: new THREE.Color(COLOR_A) },
-      colorB: { value: new THREE.Color(COLOR_B) },
+      colorMaxY: { value: new THREE.Color(COLOR_MAX) },
+      colorZero: { value: new THREE.Color(COLOR_ZERO) },
+      colorMinY: { value: new THREE.Color(COLOR_MIN) },
     },
     clipping: true,
     clippingPlanes: [
