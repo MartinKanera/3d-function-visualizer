@@ -12,13 +12,12 @@ import {
   disableForm,
 } from "./utils/form";
 import { evaluate } from "mathjs";
+import { newSceneState, clearScene } from "./utils/scene";
 
 const ANIMATION_DURATION = 3000;
 
 let oldFunctionVertices: number[] = [];
-let visualizedFunction: THREE.Object3D;
 let controls: OrbitControls;
-let gridBox: GridBox;
 let scene: THREE.Scene;
 let camera: THREE.PerspectiveCamera;
 let renderer: THREE.WebGLRenderer;
@@ -63,7 +62,7 @@ function init() {
 
   oldFunctionVertices = vertices;
 
-  visualizedFunction = functionVisualizer(
+  const visualizedFunction = functionVisualizer(
     vertices,
     indices,
     minMeasuredY,
@@ -79,7 +78,7 @@ function init() {
 
   scene.add(visualizedFunction);
 
-  gridBox = new GridBox(
+  const gridBox = new GridBox(
     DEFAULT_VALUES,
     DEFAULT_VALUES.segmentsX,
     DEFAULT_VALUES.segmentsZ,
@@ -92,19 +91,13 @@ function init() {
 
   // Initialize form
   initForm((...args) => {
-    const [visualizedFunction, gridBox] = newSceneState(...args);
+    const { vertices, newVisualizedFunction, gridBox } = newSceneState(...args);
+    oldFunctionVertices = vertices;
 
-    clearScene();
+    clearScene(scene);
     scene.add(gridBox);
-    scene.add(visualizedFunction);
+    scene.add(newVisualizedFunction);
   }, startAnimationVisualization);
-}
-
-function clearScene() {
-  const n = scene.children.length - 1;
-  for (let i = n; i > -1; i--) {
-    scene.remove(scene.children[i]);
-  }
 }
 
 function startAnimationVisualization({
@@ -136,8 +129,21 @@ function startAnimationVisualization({
     (x, y) => evaluate(fn, { x, y }),
   );
 
-  clearScene();
-  scene.add(gridBox.getGridBox());
+  clearScene(scene);
+
+  const gridBox = new GridBox(
+    {
+      minX,
+      maxX,
+      minY,
+      maxY,
+      minZ,
+      maxZ,
+    },
+    segmentsX,
+    segmentsZ,
+  );
+
   const start = performance.now();
 
   animationTick(
@@ -149,6 +155,7 @@ function startAnimationVisualization({
     minY,
     maxY,
     colors,
+    gridBox,
   );
 }
 
@@ -161,6 +168,7 @@ function animationTick(
   minY: number,
   maxY: number,
   colors: Pick<FunctionValues, "colorMin" | "colorZero" | "colorMax">,
+  gridBox: GridBox,
 ) {
   // interpolate between old and new vertices Y coordinate
   const now = performance.now();
@@ -208,10 +216,9 @@ function animationTick(
     colors,
   );
 
-  scene.remove(visualizedFunction);
+  clearScene(scene);
+  scene.add(gridBox.getGridBox());
   scene.add(newVisualizedFunction);
-
-  visualizedFunction = newVisualizedFunction;
 
   if (lastTick) return;
 
@@ -225,60 +232,9 @@ function animationTick(
       minY,
       maxY,
       colors,
+      gridBox,
     ),
   );
-}
-
-function newSceneState({
-  fn,
-  minX,
-  maxX,
-  minY,
-  maxY,
-  minZ,
-  maxZ,
-  segmentsX,
-  segmentsZ,
-  ...colors
-}: FunctionValues) {
-  const { vertices, indices, minMeasuredY, maxMeasuredY } = generateGrid(
-    {
-      minX,
-      maxX,
-      minY,
-      maxY,
-      minZ,
-      maxZ,
-    },
-    segmentsX,
-    segmentsZ,
-    (x, y) => evaluate(fn, { x, y }),
-  );
-
-  oldFunctionVertices = vertices;
-
-  const newVisualizedFunction = functionVisualizer(
-    vertices,
-    indices,
-    minMeasuredY,
-    maxMeasuredY,
-    minY,
-    maxY,
-    colors,
-  );
-
-  gridBox.setDimensions({
-    minX,
-    maxX,
-    minY,
-    maxY,
-    minZ,
-    maxZ,
-  });
-
-  gridBox.setSegments({ segmentsX, segmentsZ });
-
-  return [newVisualizedFunction, gridBox.getGridBox()];
 }
 
 // Initialize the scene and render
