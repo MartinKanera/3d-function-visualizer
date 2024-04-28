@@ -172,7 +172,7 @@ export type FunctionValues = {
 };
 
 export const DEFAULT_VALUES = {
-  fn: "sign(x-1+abs(y*2))/3 + sign(x-.5+abs(y*2))/3",
+  fn: "sin(5x)*cos(5y)/5 * asin(cos(x*10*y)) * 3",
   minX: -2.5,
   maxX: 2.5,
   minY: -2.5,
@@ -185,6 +185,8 @@ export const DEFAULT_VALUES = {
   colorZero: "#ffff00",
   colorMin: "#9966cc",
 };
+
+let currentlyDisplayedFunction = DEFAULT_VALUES.fn;
 
 export const init = (
   reactToChange: (args: FunctionValues) => void,
@@ -222,6 +224,8 @@ export const init = (
   // Add event listener to the run button
   RUN_BUTTON!.addEventListener("click", () => {
     if (!validateAndNotify()) return;
+    const values = getParsedValues();
+    currentlyDisplayedFunction = values.fn;
     functionAnimation(getParsedValues());
   });
 
@@ -242,7 +246,7 @@ export const init = (
 
   const debouncedHandler = debounce(() => {
     if (!validateAndNotify()) return;
-    reactToChange(getParsedValues());
+    reactToChange({ ...getParsedValues(), fn: currentlyDisplayedFunction });
   }, 500);
 
   for (const input of inputs) {

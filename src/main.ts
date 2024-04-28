@@ -41,9 +41,9 @@ function init() {
     1000,
   );
 
-  camera.position.x = 3;
+  camera.position.x = 4;
   camera.position.y = 2.75;
-  camera.position.z = 2.75;
+  camera.position.z = 3.75;
   camera.lookAt(0, 0, 0);
 
   // Initialize controls
