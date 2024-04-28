@@ -76,12 +76,10 @@ export const generateGrid = (
     let x = minX + i * stepX;
     for (let j = 0; j <= segmentsZ; j++) {
       let z = minZ + j * stepZ;
+
       let y = fn(x, z);
 
-      // Handle in shaders
-      if (y === -Infinity) y = minY;
-      else if (y === Infinity) y = maxY;
-      else if (isNaN(y)) y = 0;
+      if (isNaN(y)) y = 0.01;
 
       if (y > maxMeasuredY && isFinite(y)) {
         maxMeasuredY = Math.min(y, maxY);

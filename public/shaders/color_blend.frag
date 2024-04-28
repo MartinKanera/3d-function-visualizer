@@ -10,7 +10,7 @@ void main() {
     #include <clipping_planes_fragment>
 
     // Discard the fragment if the position is not valid
-    if (posY != posY || posY == 0.0) {
+    if (posY != posY || posY == 0.01) {
         discard;
     }
 

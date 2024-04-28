@@ -158,7 +158,7 @@ export type FunctionValues = {
 };
 
 export const DEFAULT_VALUES = {
-  fn: "(0.4^2-(0.6-(x^2+y^2)^0.5)^2)^0.5",
+  fn: "sign(x-1+abs(y*2))/3 + sign(x-.5+abs(y*2))/3",
   minX: -2.5,
   maxX: 2.5,
   minY: -2.5,

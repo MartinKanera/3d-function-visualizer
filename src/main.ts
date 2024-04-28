@@ -155,6 +155,7 @@ function animationTick(
     // Animation has ended, enable the form
     lastTick = true;
     vertices = newVertices;
+    console.log(vertices.filter((_) => isNaN(_)));
     enableForm();
   }
 
@@ -167,13 +168,8 @@ function animationTick(
     let oldY = oldFunctionVertices[i + 1];
     let newY = newVertices[i + 1];
 
-    if (oldY === -Infinity) oldY = minY;
-    else if (oldY === Infinity) oldY = maxY;
-
-    if (newY === -Infinity) newY = minY;
-    else if (newY === Infinity) newY = maxY;
-
     let y = oldY + (newY - oldY) * progressEased;
+    if (isNaN(y)) y = 0.01;
 
     if (y > maxMeasuredY && isFinite(y)) {
       maxMeasuredY = Math.min(y, maxY);
